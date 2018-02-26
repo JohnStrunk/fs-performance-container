@@ -89,6 +89,10 @@ function bench_maven {
 
     cd
     time rm -rf "${TARGET_PATH}/repo"
+
+    echo "There should be significant size to the m2 directory still, or something went wrong..."
+    du -sh "${TARGET_PATH}/h"
+    rm -rf "${TARGET_PATH}/h/.m2"
 }
 
 
