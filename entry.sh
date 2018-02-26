@@ -62,6 +62,7 @@ function bench_fio {
 }
 
 function bench_maven {
+    # make sure the maven local repository goes into the target directory, too
     mkdir "${TARGET_PATH}/.m2"
     rm -rf "${HOME}/.m2"
     ln -s "${TARGET_PATH}/.m2" "${HOME}/.m2"
@@ -73,10 +74,6 @@ function bench_maven {
     time mvn clean -B -e -U compile -Dmaven.test.skip=false -P openshift
     cd
     time rm -rf "${TARGET_PATH}/repo"
-
-    echo "Home dir: $(du -sh /home/bench-runner)"
-    echo "Target dir: $(du -sh "${TARGET_PATH}")"
-    exit 1
 
     echo "SECOND BUILD (cached artifacts)"
     time git clone https://github.com/jfctest1/benchapp2.git "${TARGET_PATH}/repo"
