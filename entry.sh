@@ -63,15 +63,19 @@ function bench_fio {
 
 function bench_maven {
     # make sure the maven local repository goes into the target directory, too
-    mkdir "${TARGET_PATH}/.m2"
+    mkdir "${TARGET_PATH}/h/.m2"
     rm -rf "${HOME}/.m2"
-    ln -s "${TARGET_PATH}/.m2" "${HOME}/.m2"
+    #-- this may fail if no home dir exists
+    ln -s "${TARGET_PATH}/h/.m2" "${HOME}/.m2" || true
+    #-- direct mvn where we want in case home dir isn't set
+    export HOME="${TARGET_PATH}/h"
 
     #-- Maven build
     echo "FIRST BUILD (empty cache)"
     time git clone https://github.com/jfctest1/benchapp2.git "${TARGET_PATH}/repo"
     cd "${TARGET_PATH}/repo"
     time mvn clean -B -e -U compile -Dmaven.test.skip=false -P openshift
+
     cd
     time rm -rf "${TARGET_PATH}/repo"
 
@@ -79,8 +83,10 @@ function bench_maven {
     time git clone https://github.com/jfctest1/benchapp2.git "${TARGET_PATH}/repo"
     cd "${TARGET_PATH}/repo"
     time mvn clean -B -e -U compile -Dmaven.test.skip=false -P openshift
+
     echo "THIRD BUILD (rebuild)"
     time mvn clean -B -e -U compile -Dmaven.test.skip=false -P openshift
+
     cd
     time rm -rf "${TARGET_PATH}/repo"
 }
