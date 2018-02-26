@@ -1,19 +1,19 @@
-FROM centos:7
+FROM fedora:27
 
-RUN yum install -y epel-release && \
-    yum install -y \
+RUN dnf install -y \
+      bash \
       fio \
-    && \
-    yum clean all && \
+      git \
+      maven \
+    && dnf clean all && \
     rm -rf /var/cache/yum && \
-    useradd -M bench-runner && \
-    mkdir /fio
+    useradd bench-runner
+
+RUN mkdir -p /target && \
+    chmod 777 /target
 
 USER bench-runner:bench-runner
 
 COPY entry.sh /
-COPY fio/*.fio /fio
-
-VOLUME /target
 
 ENTRYPOINT ["/entry.sh"]
