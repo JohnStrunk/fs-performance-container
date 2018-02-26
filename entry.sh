@@ -63,7 +63,7 @@ function bench_fio {
 
 function bench_maven {
     # make sure the maven local repository goes into the target directory, too
-    mkdir "${TARGET_PATH}/h/.m2"
+    mkdir -p "${TARGET_PATH}/h/.m2"
     rm -rf "${HOME}/.m2"
     #-- this may fail if no home dir exists
     ln -s "${TARGET_PATH}/h/.m2" "${HOME}/.m2" || true
