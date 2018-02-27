@@ -84,8 +84,9 @@ function bench_maven {
     cd "${TARGET_PATH}/repo"
     time mvn clean -B -e -U compile -Dmaven.test.skip=false -P openshift
 
-    echo "THIRD BUILD (rebuild)"
-    time mvn clean -B -e -U compile -Dmaven.test.skip=false -P openshift
+    #-- commented out... gets oom-killed
+    #echo "THIRD BUILD (rebuild)"
+    #time mvn clean -B -e -U compile -Dmaven.test.skip=false -P openshift
 
     cd
     time rm -rf "${TARGET_PATH}/repo"
