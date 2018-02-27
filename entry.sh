@@ -76,24 +76,12 @@ function bench_maven {
     cd "${TARGET_PATH}/repo"
     time mvn clean -B -e -U compile -Dmaven.test.skip=false -P openshift
 
-    cd
-    time rm -rf "${TARGET_PATH}/repo"
-
     echo "SECOND BUILD (cached artifacts)"
-    time git clone https://github.com/jfctest1/benchapp2.git "${TARGET_PATH}/repo"
     cd "${TARGET_PATH}/repo"
     time mvn clean -B -e -U compile -Dmaven.test.skip=false -P openshift
 
-    #-- commented out... gets oom-killed
-    #echo "THIRD BUILD (rebuild)"
-    #time mvn clean -B -e -U compile -Dmaven.test.skip=false -P openshift
-
     cd
     time rm -rf "${TARGET_PATH}/repo"
-
-    echo "There should be significant size to the m2 directory still, or something went wrong..."
-    du -sh "${TARGET_PATH}/h"
-    rm -rf "${TARGET_PATH}/h/.m2"
 }
 
 
