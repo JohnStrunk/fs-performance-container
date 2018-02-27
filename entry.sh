@@ -19,7 +19,7 @@
 set -ex
 
 #-- Run benchmarks from command line or this set as default
-BENCH_TO_RUN=(${@-clone fio maven})
+BENCH_TO_RUN=(${@-clone fio kernel maven})
 
 #-- Use approximately this much storage for the tests
 TARGET_CAPACITY_MB=${TARGET_CAPACITY_MB:-500}
@@ -59,6 +59,14 @@ function bench_fio {
         --name=rw4k@qd32 --description="IOPS via 4k random writes @ qd=32" --iodepth=32 --bs=4k --rw=randwrite \
         --name=rr4k@qd32 --description="IOPS via 4k random reads @ qd=32" --iodepth=32 --bs=4k --rw=randread
     rm -f "$FILE"
+}
+
+function bench_kernel {
+    mkdir -p "${TARGET_PATH}/kernel"
+    cd "${TARGET_PATH}/kernel"
+    time tar xJf /kernel.tar.xz
+    cd
+    time rm -rf "${TARGET_PATH}/kernel"
 }
 
 function bench_maven {
@@ -102,6 +110,9 @@ for bench in "${BENCH_TO_RUN[@]}"; do
         ;;
     fio)
         time_wrap bench_fio
+        ;;
+    kernel)
+        time_wrap bench_kernel
         ;;
     maven)
         time_wrap bench_maven
