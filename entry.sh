@@ -28,7 +28,7 @@ TARGET_CAPACITY_MB=${TARGET_CAPACITY_MB:-500}
 TARGET_PATH="${TARGET_PATH:-/target}"
 
 #-- Repo used for the clone test
-CLONE_REPO=https://github.com/gluster/glusterfs.git
+CLONE_REPO="${CLONE_REPO:-https://github.com/gluster/glusterfs.git}"
 
 
 
@@ -40,7 +40,7 @@ function time_wrap {
 
 function bench_clone {
     #-- git clone
-    time git clone ${CLONE_REPO} "${TARGET_PATH}/repo"
+    time git clone "${CLONE_REPO}" "${TARGET_PATH}/repo"
     time sync
 
     #-- remove cloned repo
