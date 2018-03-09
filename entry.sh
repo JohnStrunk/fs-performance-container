@@ -65,8 +65,10 @@ function bench_kernel {
     mkdir -p "${TARGET_PATH}/kernel"
     cd "${TARGET_PATH}/kernel"
     time tar xJf /kernel.tar.xz
+    time sync
     cd
     time rm -rf "${TARGET_PATH}/kernel"
+    time sync
 }
 
 function bench_maven {
