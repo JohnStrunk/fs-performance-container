@@ -11,7 +11,7 @@ RUN dnf install -y \
     rm -rf /var/cache/yum && \
     useradd bench-runner
 
-RUN wget -O kernel.tar.xz https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.15.6.tar.xz && \
+RUN wget -O kernel.tar.xz https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.1.51.tar.xz && \
     chmod 644 /kernel.tar.xz && \
     mkdir -p /target && \
     chmod 777 /target
