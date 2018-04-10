@@ -24,5 +24,6 @@ docker run -d \
     -e TARGET_CAPACITY_MB="500" \
     -e TARGET_PATH="/target" \
     -e CLONE_REPO="https://github.com/gluster/glusterfs.git" \
+    -e ITERATIONS="2" \
     quay.io/johnstrunk/fs-performance:latest
     #-v /system_under_test:/target \

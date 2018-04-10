@@ -30,6 +30,9 @@ TARGET_PATH="${TARGET_PATH:-/target}"
 #-- Repo used for the clone test
 CLONE_REPO="${CLONE_REPO:-https://github.com/gluster/glusterfs.git}"
 
+#-- Number of iterations to run
+ITERATIONS=${ITERATIONS:-1}
+
 
 
 function time_wrap {
@@ -40,12 +43,10 @@ function time_wrap {
 
 function bench_clone {
     #-- git clone
-    time git clone "${CLONE_REPO}" "${TARGET_PATH}/repo"
-    time sync
+    time (git clone "${CLONE_REPO}" "${TARGET_PATH}/repo" && sync)
 
     #-- remove cloned repo
-    time rm -rf "${TARGET_PATH}/repo"
-    time sync
+    time (rm -rf "${TARGET_PATH}/repo" && sync)
 }
 
 function bench_fio {
@@ -64,11 +65,9 @@ function bench_fio {
 function bench_kernel {
     mkdir -p "${TARGET_PATH}/kernel"
     cd "${TARGET_PATH}/kernel"
-    time tar xJf /kernel.tar.xz
-    time sync
+    time (tar xJf /kernel.tar.xz && sync)
     cd
-    time rm -rf "${TARGET_PATH}/kernel"
-    time sync
+    time (rm -rf "${TARGET_PATH}/kernel" && sync)
 }
 
 function bench_maven {
@@ -105,22 +104,26 @@ fi
 echo "Target capacity (MB): ${TARGET_CAPACITY_MB}"
 echo "Target path: ${TARGET_PATH}"
 
-for bench in "${BENCH_TO_RUN[@]}"; do
-    case $bench in
-    clone)
-        time_wrap bench_clone
-        ;;
-    fio)
-        time_wrap bench_fio
-        ;;
-    kernel)
-        time_wrap bench_kernel
-        ;;
-    maven)
-        time_wrap bench_maven
-        ;;
-    *)
-        echo "Unknown benchmark: $bench"
-        ;;
-    esac
+while [ "$ITERATIONS" -gt 0 ]; do
+    for bench in "${BENCH_TO_RUN[@]}"; do
+        case $bench in
+        clone)
+            time_wrap bench_clone
+            ;;
+        fio)
+            time_wrap bench_fio
+            ;;
+        kernel)
+            time_wrap bench_kernel
+            ;;
+        maven)
+            time_wrap bench_maven
+            ;;
+        *)
+            echo "Unknown benchmark: $bench"
+            exit 1
+            ;;
+        esac
+    done
+    ITERATIONS=$(( ITERATIONS - 1 ))
 done
