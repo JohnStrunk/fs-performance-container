@@ -122,6 +122,7 @@ echo "Target path: ${TARGET_PATH}"
 random_sleep "$RAND_SLEEP"
 
 if [ "${DO_DELETE}" -gt 0 ]; then
+    echo "Cleaning target dir"
     rm -rf ${TARGET_PATH}/*
 fi
 
