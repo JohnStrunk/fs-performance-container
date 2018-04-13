@@ -27,5 +27,6 @@ docker run -d \
     -e ITERATIONS="1" \
     -e RAND_SLEEP="0" \
     -e RAND_THINK="0" \
+    -e DO_DELETE="0" \
     quay.io/johnstrunk/fs-performance:latest
     #-v /system_under_test:/target \

@@ -39,6 +39,9 @@ RAND_SLEEP=${RAND_SLEEP:-0}
 #-- Add a per-iteration random delay (think-time)
 RAND_THINK=${RAND_THINK:-0}
 
+#-- Delete everything on startup
+DO_DELETE=${DO_DELETE:-0}
+
 function random_sleep {
     if [ "$1" -gt 0 ]; then
         local AMT=$(( RANDOM % $1))
@@ -117,6 +120,10 @@ echo "Target capacity (MB): ${TARGET_CAPACITY_MB}"
 echo "Target path: ${TARGET_PATH}"
 
 random_sleep "$RAND_SLEEP"
+
+if [ "${DO_DELETE}" -gt 0 ]; then
+    rm -rf ${TARGET_PATH}/*
+fi
 
 while [ "$ITERATIONS" -gt 0 ]; do
     for bench in "${BENCH_TO_RUN[@]}"; do
