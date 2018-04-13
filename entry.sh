@@ -34,10 +34,10 @@ CLONE_REPO="${CLONE_REPO:-https://github.com/gluster/glusterfs.git}"
 ITERATIONS=${ITERATIONS:-1}
 
 #-- Add a random delay at startup
-RAND_SLEEP=${RAND_SLEEP:0}
+RAND_SLEEP=${RAND_SLEEP:-0}
 
 #-- Add a per-iteration random delay (think-time)
-RAND_THINK=${RAND_THINK:0}
+RAND_THINK=${RAND_THINK:-0}
 
 function random_sleep {
     if [ "$1" -gt 0 ]; then
