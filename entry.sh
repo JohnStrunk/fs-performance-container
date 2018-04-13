@@ -33,7 +33,19 @@ CLONE_REPO="${CLONE_REPO:-https://github.com/gluster/glusterfs.git}"
 #-- Number of iterations to run
 ITERATIONS=${ITERATIONS:-1}
 
+#-- Add a random delay at startup
+RAND_SLEEP=${RAND_SLEEP:0}
 
+#-- Add a per-iteration random delay (think-time)
+RAND_THINK=${RAND_THINK:0}
+
+function random_sleep {
+    if [ "$1" -gt 0 ]; then
+        local AMT=$(( RANDOM % $1))
+        echo "Sleeping for ${AMT}s"
+        sleep "${AMT}"
+    fi
+}
 
 function time_wrap {
     echo "=== Starting $* at $(date) ==="
@@ -104,6 +116,8 @@ fi
 echo "Target capacity (MB): ${TARGET_CAPACITY_MB}"
 echo "Target path: ${TARGET_PATH}"
 
+random_sleep "$RAND_SLEEP"
+
 while [ "$ITERATIONS" -gt 0 ]; do
     for bench in "${BENCH_TO_RUN[@]}"; do
         case $bench in
@@ -125,5 +139,6 @@ while [ "$ITERATIONS" -gt 0 ]; do
             ;;
         esac
     done
+    random_sleep "$RAND_THINK"
     ITERATIONS=$(( ITERATIONS - 1 ))
 done
