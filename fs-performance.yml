@@ -13,7 +13,7 @@ apiVersion: v1
 metadata:
   name: fs-perf-target
 spec:
-  #storageClassName: myclass
+  # storageClassName: myclass
   accessModes:
     - ReadWriteOnce
   resources:
@@ -32,20 +32,21 @@ spec:
       name: fs-performance
     spec:
       containers:
-      - name: fio
-        image: quay.io/johnstrunk/fs-performance:latest
-        env:
-        - name: TARGET_CAPACITY_MB
-          value: "500"
-        - name: TARGET_PATH
-          value: "/target"
-        - name: CLONE_REPO
-          value: "https://github.com/gluster/glusterfs.git"
-        volumeMounts:
-        - name: target
-          mountPath: /target
+        - name: fio
+          image: quay.io/johnstrunk/fs-performance:latest
+          args: ["clone", "fio", "kernel"]
+          env:
+            - name: TARGET_CAPACITY_MB
+              value: "500"
+            - name: TARGET_PATH
+              value: "/target"
+            - name: CLONE_REPO
+              value: "https://github.com/gluster/glusterfs.git"
+          volumeMounts:
+            - name: target
+              mountPath: /target
       restartPolicy: Never
       volumes:
-      - name: target
-        persistentVolumeClaim:
-          claimName: fs-perf-target
+        - name: target
+          persistentVolumeClaim:
+            claimName: fs-perf-target
