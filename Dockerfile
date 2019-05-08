@@ -1,17 +1,19 @@
-FROM fedora:30
+FROM centos:7
 
-RUN dnf install -y \
+RUN yum install -y \
       bash \
       fio \
       git \
       time \
       wget \
       xz \
-    && dnf clean all && \
+    && \
+    yum update -y && \
+    yum clean all && \
     rm -rf /var/cache/yum && \
     useradd bench-runner
 
-RUN wget -O kernel.tar.xz https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.1.51.tar.xz && \
+RUN wget --progress=dot:giga -O kernel.tar.xz https://cdn.kernel.org/pub/linux/kernel/v4.x/linux-4.1.51.tar.xz && \
     chmod 644 /kernel.tar.xz && \
     mkdir -p /target && \
     chmod 777 /target
