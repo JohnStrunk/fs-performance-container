@@ -25,7 +25,7 @@ jobs:
         - .travis/pre-commit.sh --require-all
     - name: Build
       script:
-        - docker build -t "${CONTAINER_REPO}" .
+        - ./build.sh
       deploy:
         # Master branch will push the container to :latest
         - provider: script
