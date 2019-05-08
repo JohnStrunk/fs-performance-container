@@ -34,7 +34,6 @@ spec:
       containers:
         - name: fs-performance
           image: quay.io/johnstrunk/fs-performance:latest
-          args: ["clone", "fio", "kernel"]
           env:
             # List of the benchmarks to run (space separated)
             # See functions bench_* in entry.sh for full list
