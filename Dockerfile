@@ -4,7 +4,7 @@ RUN dnf install -y \
       bash \
       fio \
       git \
-      maven \
+      time \
       wget \
       xz \
     && dnf clean all && \

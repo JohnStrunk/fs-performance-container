@@ -13,9 +13,9 @@ apiVersion: v1
 metadata:
   name: fs-perf-target
 spec:
+  # To test a particular type of storage, set the name of the StorageClass here.
   # storageClassName: myclass
-  accessModes:
-    - ReadWriteOnce
+  accessModes: ["ReadWriteOnce"]
   resources:
     requests:
       storage: 1Gi
@@ -32,16 +32,17 @@ spec:
       name: fs-performance
     spec:
       containers:
-        - name: fio
+        - name: fs-performance
           image: quay.io/johnstrunk/fs-performance:latest
           args: ["clone", "fio", "kernel"]
           env:
-            - name: TARGET_CAPACITY_MB
-              value: "500"
+            # List of the benchmarks to run (space separated)
+            # See functions bench_* in entry.sh for full list
+            - name: BENCHMARKS
+              value: "clone kernel"
+            # TARGET_PATH must match the path for the volumeMount, below.
             - name: TARGET_PATH
               value: "/target"
-            - name: CLONE_REPO
-              value: "https://github.com/gluster/glusterfs.git"
           volumeMounts:
             - name: target
               mountPath: /target
