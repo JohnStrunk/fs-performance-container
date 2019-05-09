@@ -25,15 +25,50 @@ function bench_clone {
 }
 
 function bench_fio {
-        local FILE
-        FILE="${TARGET_PATH}/testfile"
-        fio --filesize="${TARGET_CAPACITY_MB}M" --runtime=120s --ioengine=libaio --direct=1 --time_based --stonewall --filename="$FILE" --eta=never \
-        --name=sw1m@qd32 --description="Bandwidth via 1MB sequential writes @ qd=32" --iodepth=32 --bs=1m --rw=write \
-        --name=sr1m@qd32 --description="Bandwidth via 1MB sequential reads @ qd=32" --iodepth=32 --bs=1m --rw=read \
-        --name=rw4k@qd1 --description="e2e latency via 4k random writes @ qd=1" --iodepth=1 --bs=4k --rw=randwrite \
-        --name=rr4k@qd1 --description="e2e latency via 4k random reads @ qd=1" --iodepth=1 --bs=4k --rw=randread \
-        --name=rw4k@qd32 --description="IOPS via 4k random writes @ qd=32" --iodepth=32 --bs=4k --rw=randwrite \
-        --name=rr4k@qd32 --description="IOPS via 4k random reads @ qd=32" --iodepth=32 --bs=4k --rw=randread
+        local FILE="${TARGET_PATH}/testfile"
+        local result
+        local FIO_ARGS=(
+                "--filesize=${FIO_CAPACITY_MB}M"
+                "--runtime=${FIO_RUNTIME}s"
+                "--filename=$FILE"
+                "--ioengine=libaio"
+                "--direct=1"
+                "--time_based"
+                "--stonewall"
+                "--eta=never"
+                "--output-format=json"
+        )
+
+        # Test max I/O bandwidth via 1 MB sequential writes w/ qd=32
+        result="$(fio "${FIO_ARGS[@]}" --name=sw1m@qd32 --iodepth=32 --bs=1m --rw=write | \
+                jq '.jobs[0].write.bw / 1024 | round')"
+        echo -e "\tMax write bandwidth: ${result} MiB/s"
+
+        # Test max I/O bandwidth via 1 MB sequential reads w/ qd=32
+        result="$(fio "${FIO_ARGS[@]}" --name=sr1m@qd32 --iodepth=32 --bs=1m --rw=read | \
+                jq '.jobs[0].read.bw / 1024 | round')"
+        echo -e "\tMax read bandwidth: ${result} MiB/s"
+
+        # Test I/O latency via 4k random writes w/ qd=1
+        result="$(fio "${FIO_ARGS[@]}" --name=rw4k@qd1 --iodepth=1 --bs=4k --rw=randwrite | \
+                jq '.jobs[0].write.clat_ns.mean / 1000 | round / 1000')"
+        echo -e "\tWrite I/O latency: ${result} ms"
+
+        # Test I/O latency via 4k random reads w/ qd=1
+        result="$(fio "${FIO_ARGS[@]}" --name=rr4k@qd1 --iodepth=1 --bs=4k --rw=randread | \
+                jq '.jobs[0].read.clat_ns.mean / 1000 | round / 1000')"
+        echo -e "\tRead I/O latency: ${result} ms"
+
+        # Test max I/O throughput via 4k random writes w/ qd=32
+        result="$(fio "${FIO_ARGS[@]}" --name=rw4k@qd32 --iodepth=32 --bs=4k --rw=randwrite | \
+                jq '.jobs[0].write.iops | round')"
+        echo -e "\tMax write throughput: ${result} IOPS"
+
+        # Test max I/O throughput via 4k random reads w/ qd=32
+        result="$(fio "${FIO_ARGS[@]}" --name=rr4k@qd32 --iodepth=32 --bs=4k --rw=randread | \
+                jq '.jobs[0].read.iops | round')"
+        echo -e "\tMax read throughput: ${result} IOPS"
+
         rm -f "$FILE"
 }
 
@@ -43,6 +78,10 @@ function bench_kernel {
         measure_time "Time to delete untar-ed files" "rm -rf '${TARGET_PATH}/kernel' && sync"
 }
 
+function bench_null {
+        echo NULL benchmark
+}
+
 #-- Environment variables used to configure the container
 # configurable "VARNAME" "DEFAULT_VALUE_IF_NOT_SET" "Text description"
 function configurable {
@@ -50,7 +89,9 @@ function configurable {
         local DEFAULT="$2"
         local DESCRIPTION="$3"
 
-        echo -e "\t$DESCRIPTION: ${!VARNAME:=$DEFAULT}  ($VARNAME)"
+        [[ -n ${!VARNAME} ]] || export "$VARNAME"="$DEFAULT"
+
+        echo -e "\t$DESCRIPTION: ${!VARNAME}  ($VARNAME)"
 }
 
 #-- Run a command and print out how long it took
@@ -61,7 +102,7 @@ function measure_time {
 
         local TIMEFILE; TIMEFILE="$(mktemp)"
 
-        /usr/bin/time -f %es -o "$TIMEFILE" bash -c "$CMD"
+        /usr/bin/time -f "%e s" -o "$TIMEFILE" bash -c "$CMD"
         echo -e "\t${DESCRIPTION}: $(cat "$TIMEFILE")"
 
         rm -f "$TIMEFILE"
@@ -79,13 +120,14 @@ function random_sleep {
 
 
 echo Configuration:
-configurable BENCHMARKS "clone kernel" "List of benchmarks to run"
+configurable BENCHMARKS "clone fio kernel" "List of benchmarks to run"
 configurable TARGET_PATH "/target" "Target path for tests"
 configurable ITERATIONS 1 "Number of test iterations to run"
 configurable STARTUP_DELAY 0 "Random startup delay (s)"
 configurable RAND_THINK 0 "Random delay between iterations (s)"
 configurable DELETE_FIRST 0 "Delete contents of target dir on startup"
 configurable FIO_CAPACITY_MB 500 "File size for fio benchmark"
+configurable FIO_RUNTIME 120 "Runtime for individual fio tests (s)"
 configurable CLONE_REPO "https://github.com/gluster/glusterfs.git" "Git repo to use for clone test"
 
 # /target is the place that we do our I/O. Make sure it's writable
