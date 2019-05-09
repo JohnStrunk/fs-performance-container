@@ -14,7 +14,7 @@ metadata:
   name: fs-perf-target
 spec:
   # To test a particular type of storage, set the name of the StorageClass here.
-  # storageClassName: myclass
+  # storageClassName: gp2
   accessModes: ["ReadWriteOnce"]
   resources:
     requests:
@@ -34,11 +34,13 @@ spec:
       containers:
         - name: fs-performance
           image: quay.io/johnstrunk/fs-performance:latest
+          # For debugging, uncomment this then exec into the pod...
+          # command: ["/bin/bash", "-c", "sleep infinity"]
           env:
-            # List of the benchmarks to run (space separated)
+            # Override the list of the benchmarks to run (space separated)
             # See functions bench_* in entry.sh for full list
-            - name: BENCHMARKS
-              value: "clone kernel"
+            # - name: BENCHMARKS
+            #   value: "clone kernel"
             # TARGET_PATH must match the path for the volumeMount, below.
             - name: TARGET_PATH
               value: "/target"
