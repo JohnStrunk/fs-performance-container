@@ -20,6 +20,10 @@ if [[ ${DEBUG:=0} -gt 0 ]]; then
 fi
 
 function bench_clone {
+        # Must set the Git identity or the git clone generates an error
+        export GIT_COMMITTER_NAME="nobody"
+        export GIT_COMMITTER_EMAIL="nobody@nowhere.com"
+
         measure_time "Time to clone Git repository" "git clone -q '${CLONE_REPO}' '${TARGET_PATH}/repo' && sync"
         measure_time "Time to remove cloned files" "rm -rf '${TARGET_PATH}/repo' && sync"
 }
