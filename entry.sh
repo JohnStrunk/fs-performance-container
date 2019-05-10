@@ -133,7 +133,7 @@ configurable RAND_THINK 0 "Random delay between iterations (s)"
 configurable DELETE_FIRST 0 "Delete contents of target dir on startup"
 configurable FIO_CAPACITY_MB 500 "File size for fio benchmark"
 configurable FIO_RUNTIME 120 "Runtime for individual fio tests (s)"
-configurable CLONE_REPO "https://github.com/gluster/glusterfs.git" "Git repo to use for clone test"
+configurable CLONE_REPO "https://github.com/eclipse/che" "Git repo to use for clone test"
 
 # /target is the place that we do our I/O. Make sure it's writable
 if ! touch "${TARGET_PATH}/dest_is_writable"; then
