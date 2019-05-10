@@ -31,6 +31,7 @@ function bench_clone {
 function bench_fio {
         local FILE="${TARGET_PATH}/testfile"
         local result
+        local -a resulta
         local FIO_ARGS=(
                 "--filesize=${FIO_CAPACITY_MB}M"
                 "--runtime=${FIO_RUNTIME}s"
@@ -54,14 +55,14 @@ function bench_fio {
         echo -e "\tMax read bandwidth: ${result} MiB/s"
 
         # Test I/O latency via 4k random writes w/ qd=1
-        result="$(fio "${FIO_ARGS[@]}" --name=rw4k@qd1 --iodepth=1 --bs=4k --rw=randwrite | \
-                jq '.jobs[0].write.clat_ns.mean / 1000 | round / 1000')"
-        echo -e "\tWrite I/O latency: ${result} ms"
+        readarray -t resulta < <(fio "${FIO_ARGS[@]}" --name=rw4k@qd1 --iodepth=1 --bs=4k --rw=randwrite | \
+                jq '(.jobs[0].write.clat_ns.mean / 1000 | round / 1000), (.jobs[0].write.clat_ns.percentile."50.000000" / 1000 | round / 1000), (.jobs[0].write.clat_ns.percentile."90.000000" / 1000 | round / 1000), (.jobs[0].write.clat_ns.percentile."95.000000" / 1000 | round / 1000), (.jobs[0].write.clat_ns.percentile."99.000000" / 1000 | round / 1000)')
+        echo -e "\tWrite I/O latency: ${resulta[0]} ms  (50%=${resulta[1]}, 90%=${resulta[2]}, 95%=${resulta[3]}, 99%=${resulta[4]})"
 
         # Test I/O latency via 4k random reads w/ qd=1
-        result="$(fio "${FIO_ARGS[@]}" --name=rr4k@qd1 --iodepth=1 --bs=4k --rw=randread | \
-                jq '.jobs[0].read.clat_ns.mean / 1000 | round / 1000')"
-        echo -e "\tRead I/O latency: ${result} ms"
+        readarray -t resulta < <(fio "${FIO_ARGS[@]}" --name=rr4k@qd1 --iodepth=1 --bs=4k --rw=randread | \
+                jq '(.jobs[0].read.clat_ns.mean / 1000 | round / 1000), (.jobs[0].read.clat_ns.percentile."50.000000" / 1000 | round / 1000), (.jobs[0].read.clat_ns.percentile."90.000000" / 1000 | round / 1000), (.jobs[0].read.clat_ns.percentile."95.000000" / 1000 | round / 1000), (.jobs[0].read.clat_ns.percentile."99.000000" / 1000 | round / 1000)')
+        echo -e "\tRead I/O latency: ${resulta[0]} ms  (50%=${resulta[1]}, 90%=${resulta[2]}, 95%=${resulta[3]}, 99%=${resulta[4]})"
 
         # Test max I/O throughput via 4k random writes w/ qd=32
         result="$(fio "${FIO_ARGS[@]}" --name=rw4k@qd32 --iodepth=32 --bs=4k --rw=randwrite | \
